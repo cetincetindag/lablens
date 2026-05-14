@@ -72,8 +72,19 @@ function setSyncState(isSyncing) {
 }
 
 function createTrendChart(canvasId, label) {
+  if (typeof window.Chart === "undefined") {
+    return null;
+  }
+
   const canvas = document.getElementById(canvasId);
+  if (!canvas) {
+    return null;
+  }
   const context = canvas.getContext("2d");
+  if (!context) {
+    return null;
+  }
+
   return new Chart(context, {
     type: "line",
     data: {
@@ -127,6 +138,10 @@ function createTrendChart(canvasId, label) {
 }
 
 function updateTrendChart(chart, points) {
+  if (!chart) {
+    return;
+  }
+
   const labels = points.map((p) =>
     new Date(p.timestamp * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
   );
@@ -213,7 +228,7 @@ async function refresh() {
     setMetricValue("metric-namespaces", data.workloads.namespaces);
 
     updateNodeTable(data.nodeStats);
-    const resources = data.resources ?? { nodeNames: [], appNames: [], podNames: [] };
+    const resources = data.resources ? data.resources : { nodeNames: [], appNames: [], podNames: [] };
     updateNameList("nodes-list", "nodes-list-count", resources.nodeNames, "No nodes found");
     updateNameList("apps-list", "apps-list-count", resources.appNames, "No running apps found");
     updateNameList("pods-list", "pods-list-count", resources.podNames, "No running pods found");
@@ -237,8 +252,13 @@ async function refresh() {
 function init() {
   document.body.classList.add("is-loaded");
   setLiveState(true);
+
   cpuChart = createTrendChart("cpu-trend", "CPU Usage");
   memoryChart = createTrendChart("memory-trend", "Memory Usage");
+  if (!cpuChart || !memoryChart) {
+    setText("refresh-indicator", "Auto-refreshes every 5 seconds · live mode (charts fallback)");
+  }
+
   refresh();
   setInterval(refresh, 5000);
 }
