@@ -11,12 +11,17 @@
   <body>
     <div class="pageShell">
       <header class="siteHeader">
-        <div>
+        <div class="animItem" style="--enter-delay: 40ms">
           <p class="siteOwner">Cetin Cetindag</p>
-          <h1 class="siteTitle">LabLens</h1>
-          <p class="subtitle">Live homelab cluster health and workload view</p>
+          <div class="subtitleRow">
+            <p class="subtitle">Live homelab cluster health and workload view</p>
+            <p id="live-badge" class="liveBadge" aria-live="polite">
+              <span class="liveDot" aria-hidden="true"></span>
+              LIVE
+            </p>
+          </div>
         </div>
-        <nav class="headerActions" aria-label="External links">
+        <nav class="headerActions animItem" style="--enter-delay: 90ms" aria-label="External links">
           <a class="topButton" href="https://cetincetindag.com" target="_blank" rel="noopener noreferrer">
             <span class="topButtonIcon">P</span>
             <span class="topButtonLabel">Portfolio</span>
@@ -37,7 +42,7 @@
       </header>
 
       <main class="contentArea">
-        <section class="summaryGrid" aria-label="Cluster summary">
+        <section class="summaryGrid animItem" style="--enter-delay: 130ms" aria-label="Cluster summary">
           <article class="metricCard">
             <h2>Cluster CPU</h2>
             <p id="metric-cpu" class="metricValue">--%</p>
@@ -62,24 +67,24 @@
             <h2>Namespaces</h2>
             <p id="metric-namespaces" class="metricValue">--</p>
           </article>
-          <article class="metricCard">
-            <h2>Available Deployments</h2>
-            <p id="metric-deployments" class="metricValue">--</p>
-          </article>
         </section>
 
-        <section class="chartGrid" aria-label="Resource trends">
+        <section class="chartGrid animItem" style="--enter-delay: 180ms" aria-label="Resource trends">
           <article class="panel">
             <h2>CPU usage (1h)</h2>
-            <canvas id="cpu-trend" height="110"></canvas>
+            <div class="chartCanvas">
+              <canvas id="cpu-trend"></canvas>
+            </div>
           </article>
           <article class="panel">
             <h2>Memory usage (1h)</h2>
-            <canvas id="memory-trend" height="110"></canvas>
+            <div class="chartCanvas">
+              <canvas id="memory-trend"></canvas>
+            </div>
           </article>
         </section>
 
-        <section class="panel" aria-label="Node usage">
+        <section class="panel animItem" style="--enter-delay: 230ms" aria-label="Node usage">
           <div class="panelHeader">
             <h2>Node utilization</h2>
             <p id="last-updated" class="mutedText">Updating...</p>
@@ -102,10 +107,40 @@
             </table>
           </div>
         </section>
+
+        <section class="inventoryGrid animItem" style="--enter-delay: 280ms" aria-label="Named resources">
+          <article class="panel listPanel">
+            <div class="panelHeader">
+              <h2>Node names</h2>
+              <p id="nodes-list-count" class="mutedText">0</p>
+            </div>
+            <ul id="nodes-list" class="nameList">
+              <li class="mutedText">Loading nodes...</li>
+            </ul>
+          </article>
+          <article class="panel listPanel">
+            <div class="panelHeader">
+              <h2>Running apps</h2>
+              <p id="apps-list-count" class="mutedText">0</p>
+            </div>
+            <ul id="apps-list" class="nameList">
+              <li class="mutedText">Loading apps...</li>
+            </ul>
+          </article>
+          <article class="panel listPanel">
+            <div class="panelHeader">
+              <h2>Running pods</h2>
+              <p id="pods-list-count" class="mutedText">0</p>
+            </div>
+            <ul id="pods-list" class="nameList">
+              <li class="mutedText">Loading pods...</li>
+            </ul>
+          </article>
+        </section>
       </main>
 
-      <footer class="footer mutedText">
-        Auto-refreshes every 15 seconds
+      <footer id="refresh-indicator" class="footer mutedText animItem" style="--enter-delay: 330ms">
+        Auto-refreshes every 5 seconds
       </footer>
     </div>
   </body>

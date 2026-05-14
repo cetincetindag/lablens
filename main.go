@@ -73,12 +73,16 @@ type OverviewResponse struct {
 		StoragePercent float64 `json:"storagePercent"`
 	} `json:"summary"`
 	Workloads struct {
-		PodsRunning          float64 `json:"podsRunning"`
-		Namespaces           float64 `json:"namespaces"`
-		DeploymentsAvailable float64 `json:"deploymentsAvailable"`
+		PodsRunning float64 `json:"podsRunning"`
+		Namespaces  float64 `json:"namespaces"`
 	} `json:"workloads"`
 	NodeStats []NodeStat `json:"nodeStats"`
-	Trends    struct {
+	Resources struct {
+		NodeNames []string `json:"nodeNames"`
+		AppNames  []string `json:"appNames"`
+		PodNames  []string `json:"podNames"`
+	} `json:"resources"`
+	Trends struct {
 		CPUUsage    []TimeseriesPoint `json:"cpuUsage"`
 		MemoryUsage []TimeseriesPoint `json:"memoryUsage"`
 	} `json:"trends"`
@@ -179,14 +183,13 @@ func (s *Server) buildOverview(ctx context.Context) (*OverviewResponse, error) {
 		return nil, fmt.Errorf("namespace count query: %w", err)
 	}
 
-	response.Workloads.DeploymentsAvailable, err = s.prometheus.queryScalar(ctx, `sum(kube_deployment_status_replicas_available)`)
-	if err != nil {
-		return nil, fmt.Errorf("available deployments query: %w", err)
-	}
-
 	response.NodeStats, err = s.buildNodeStats(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("node stats query: %w", err)
+	}
+	response.Resources.NodeNames, response.Resources.AppNames, response.Resources.PodNames, err = s.buildResourceNames(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("resource names query: %w", err)
 	}
 
 	windowEnd := time.Now().UTC()
@@ -202,6 +205,55 @@ func (s *Server) buildOverview(ctx context.Context) (*OverviewResponse, error) {
 	}
 
 	return response, nil
+}
+
+func (s *Server) buildResourceNames(ctx context.Context) ([]string, []string, []string, error) {
+	nodeSamples, err := s.prometheus.queryVector(ctx, `kube_node_info`)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("node list query: %w", err)
+	}
+
+	appSamples, err := s.prometheus.queryVector(ctx, `kube_deployment_status_replicas_available > 0`)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("app list query: %w", err)
+	}
+
+	podSamples, err := s.prometheus.queryVector(ctx, `kube_pod_status_phase{phase="Running"} == 1`)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("pod list query: %w", err)
+	}
+
+	nodeSet := map[string]struct{}{}
+	for _, sample := range nodeSamples {
+		name := strings.TrimSpace(sample.Metric["node"])
+		if name == "" {
+			name = strings.TrimSpace(sample.Metric["instance"])
+		}
+		if name == "" {
+			continue
+		}
+		nodeSet[formatNodeName(name)] = struct{}{}
+	}
+
+	appSet := map[string]struct{}{}
+	for _, sample := range appSamples {
+		deployment := strings.TrimSpace(sample.Metric["deployment"])
+		if deployment == "" {
+			continue
+		}
+		appSet[namespacedName(sample.Metric["namespace"], deployment)] = struct{}{}
+	}
+
+	podSet := map[string]struct{}{}
+	for _, sample := range podSamples {
+		pod := strings.TrimSpace(sample.Metric["pod"])
+		if pod == "" {
+			continue
+		}
+		podSet[namespacedName(sample.Metric["namespace"], pod)] = struct{}{}
+	}
+
+	return sortedSet(nodeSet), sortedSet(appSet), sortedSet(podSet), nil
 }
 
 func (s *Server) buildNodeStats(ctx context.Context) ([]NodeStat, error) {
@@ -454,4 +506,22 @@ func formatNodeName(instance string) string {
 		return host
 	}
 	return instance
+}
+
+func namespacedName(namespace string, name string) string {
+	namespace = strings.TrimSpace(namespace)
+	name = strings.TrimSpace(name)
+	if namespace == "" {
+		return name
+	}
+	return namespace + "/" + name
+}
+
+func sortedSet(values map[string]struct{}) []string {
+	result := make([]string, 0, len(values))
+	for value := range values {
+		result = append(result, value)
+	}
+	sort.Strings(result)
+	return result
 }

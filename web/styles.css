@@ -8,6 +8,10 @@
   --text-muted: oklch(0.76 0.02 80);
   --accent: oklch(0.7 0.075 72);
   --accent-active: oklch(0.64 0.08 72);
+  --ok: oklch(0.73 0.17 150);
+  --ok-soft: color-mix(in oklch, var(--ok) 24%, var(--bg) 76%);
+  --warn: oklch(0.69 0.16 32);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 * {
@@ -26,6 +30,16 @@ body {
   color: var(--text);
   font-family: "IBM Plex Sans", "Inter", system-ui, -apple-system, sans-serif;
   line-height: 1.5;
+}
+
+.animItem {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+body.is-loaded .animItem {
+  animation: enter-fade-up 440ms var(--ease-out-quart) forwards;
+  animation-delay: var(--enter-delay, 0ms);
 }
 
 a {
@@ -69,6 +83,52 @@ a {
   margin-top: 0.35rem;
 }
 
+.subtitleRow {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.35rem;
+}
+
+.liveBadge {
+  align-items: center;
+  background: color-mix(in oklch, var(--ok) 12%, var(--panel) 88%);
+  border: 1px solid color-mix(in oklch, var(--ok) 35%, var(--line) 65%);
+  border-radius: 999px;
+  color: color-mix(in oklch, var(--ok) 80%, var(--text) 20%);
+  display: inline-flex;
+  font-size: 0.7rem;
+  font-weight: 600;
+  gap: 0.36rem;
+  letter-spacing: 0.08em;
+  padding: 0.16rem 0.5rem;
+  text-transform: uppercase;
+  transition: border-color 220ms var(--ease-out-quart), color 220ms var(--ease-out-quart), background-color 220ms var(--ease-out-quart);
+}
+
+.liveBadge.is-offline {
+  background: color-mix(in oklch, var(--warn) 10%, var(--panel) 90%);
+  border-color: color-mix(in oklch, var(--warn) 35%, var(--line) 65%);
+  color: color-mix(in oklch, var(--warn) 70%, var(--text) 30%);
+}
+
+.liveDot {
+  background: var(--ok);
+  border-radius: 999px;
+  box-shadow: 0 0 0 0 var(--ok-soft);
+  display: inline-block;
+  height: 0.5rem;
+  width: 0.5rem;
+  animation: live-dot-pulse 1.6s var(--ease-out-quart) infinite;
+}
+
+.liveBadge.is-offline .liveDot {
+  animation: none;
+  background: var(--warn);
+  box-shadow: none;
+}
+
 .headerActions {
   display: flex;
   flex-wrap: wrap;
@@ -85,10 +145,13 @@ a {
   min-height: 2.2rem;
   min-width: 2.9rem;
   padding: 0.16rem 0.22rem;
+  transform: translateY(0);
+  transition: color 170ms var(--ease-out-quart), transform 170ms var(--ease-out-quart);
 }
 
 .topButton:hover {
   color: var(--text);
+  transform: translateY(-1px);
 }
 
 .topButtonIcon {
@@ -129,6 +192,13 @@ a {
   border: 1px solid var(--line);
   border-radius: 0.45rem;
   padding: 0.9rem;
+  transform: translateY(0);
+  transition: transform 220ms var(--ease-out-quart), border-color 220ms var(--ease-out-quart), background-color 220ms var(--ease-out-quart);
+}
+
+.metricCard:hover {
+  border-color: color-mix(in oklch, var(--accent) 30%, var(--line) 70%);
+  transform: translateY(-1px);
 }
 
 .metricCard h2 {
@@ -145,10 +215,20 @@ a {
   margin-top: 0.35rem;
 }
 
+.metricValue.valuePulse {
+  animation: value-pulse 260ms var(--ease-out-quart);
+}
+
 .chartGrid {
   display: grid;
   gap: 0.8rem;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.inventoryGrid {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .panel {
@@ -156,6 +236,13 @@ a {
   border: 1px solid var(--line);
   border-radius: 0.45rem;
   padding: 0.95rem;
+  transform: translateY(0);
+  transition: transform 220ms var(--ease-out-quart), border-color 220ms var(--ease-out-quart), background-color 220ms var(--ease-out-quart);
+}
+
+.panel:hover {
+  border-color: color-mix(in oklch, var(--accent) 25%, var(--line) 75%);
+  transform: translateY(-1px);
 }
 
 .panel h2 {
@@ -163,6 +250,18 @@ a {
   font-weight: 500;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+}
+
+.chartCanvas {
+  height: 220px;
+  margin-top: 0.65rem;
+  position: relative;
+}
+
+.chartCanvas canvas {
+  display: block;
+  height: 100% !important;
+  width: 100% !important;
 }
 
 .panelHeader {
@@ -181,6 +280,29 @@ a {
   overflow-x: auto;
 }
 
+.listPanel {
+  padding-bottom: 0.55rem;
+}
+
+.nameList {
+  list-style: none;
+  margin-top: 0.7rem;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.nameList li {
+  border-bottom: 1px solid var(--line);
+  font-size: 0.84rem;
+  padding: 0.44rem 0.1rem;
+  transition: background-color 220ms var(--ease-out-quart), transform 220ms var(--ease-out-quart);
+}
+
+.nameList li:hover {
+  background: color-mix(in oklch, var(--bg-soft) 28%, transparent);
+  transform: translateX(2px);
+}
+
 table {
   border-collapse: collapse;
   width: 100%;
@@ -192,6 +314,11 @@ td {
   font-size: 0.88rem;
   padding: 0.65rem 0.55rem;
   text-align: left;
+  transition: background-color 220ms var(--ease-out-quart);
+}
+
+tbody tr:hover td {
+  background: color-mix(in oklch, var(--bg-soft) 30%, transparent);
 }
 
 th {
@@ -205,10 +332,74 @@ th {
   border-top: 1px solid var(--line);
   margin-top: 1rem;
   padding-top: 0.9rem;
+  transition: color 220ms var(--ease-out-quart), border-color 220ms var(--ease-out-quart);
+}
+
+.footer.is-syncing {
+  color: color-mix(in oklch, var(--accent) 55%, var(--text-muted) 45%);
+}
+
+@keyframes enter-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes live-dot-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--ok) 40%, transparent);
+    opacity: 0.95;
+  }
+  70% {
+    box-shadow: 0 0 0 8px color-mix(in oklch, var(--ok) 0%, transparent);
+    opacity: 1;
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--ok) 0%, transparent);
+    opacity: 0.92;
+  }
+}
+
+@keyframes value-pulse {
+  0% {
+    opacity: 0.78;
+    transform: translateY(1px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animItem,
+  body.is-loaded .animItem {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @media (max-width: 560px) {
   .headerActions {
     width: 100%;
+  }
+
+  .chartCanvas {
+    height: 180px;
   }
 }
