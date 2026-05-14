@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LabLens</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="pageShell">
+      <header class="siteHeader">
+        <div>
+          <p class="siteOwner">Cetin Cetindag</p>
+          <h1 class="siteTitle">LabLens</h1>
+          <p class="subtitle">Live homelab cluster health and workload view</p>
+        </div>
+        <nav class="headerActions" aria-label="External links">
+          <a class="topButton" href="https://cetincetindag.com" target="_blank" rel="noopener noreferrer">
+            <span class="topButtonIcon">P</span>
+            <span class="topButtonLabel">Portfolio</span>
+          </a>
+          <a class="topButton" href="https://github.com/cetincetindag" target="_blank" rel="noopener noreferrer">
+            <span class="topButtonIcon">G</span>
+            <span class="topButtonLabel">GitHub</span>
+          </a>
+          <a class="topButton" href="https://linkedin.com/in/cetincetindag" target="_blank" rel="noopener noreferrer">
+            <span class="topButtonIcon">L</span>
+            <span class="topButtonLabel">LinkedIn</span>
+          </a>
+          <a class="topButton" href="https://blog.cetindag.org" target="_blank" rel="noopener noreferrer">
+            <span class="topButtonIcon">B</span>
+            <span class="topButtonLabel">Blog</span>
+          </a>
+        </nav>
+      </header>
+
+      <main class="contentArea">
+        <section class="summaryGrid" aria-label="Cluster summary">
+          <article class="metricCard">
+            <h2>Cluster CPU</h2>
+            <p id="metric-cpu" class="metricValue">--%</p>
+          </article>
+          <article class="metricCard">
+            <h2>Cluster Memory</h2>
+            <p id="metric-memory" class="metricValue">--%</p>
+          </article>
+          <article class="metricCard">
+            <h2>Cluster Storage</h2>
+            <p id="metric-storage" class="metricValue">--%</p>
+          </article>
+          <article class="metricCard">
+            <h2>Nodes</h2>
+            <p id="metric-nodes" class="metricValue">--</p>
+          </article>
+          <article class="metricCard">
+            <h2>Running Pods</h2>
+            <p id="metric-pods" class="metricValue">--</p>
+          </article>
+          <article class="metricCard">
+            <h2>Namespaces</h2>
+            <p id="metric-namespaces" class="metricValue">--</p>
+          </article>
+          <article class="metricCard">
+            <h2>Available Deployments</h2>
+            <p id="metric-deployments" class="metricValue">--</p>
+          </article>
+        </section>
+
+        <section class="chartGrid" aria-label="Resource trends">
+          <article class="panel">
+            <h2>CPU usage (1h)</h2>
+            <canvas id="cpu-trend" height="110"></canvas>
+          </article>
+          <article class="panel">
+            <h2>Memory usage (1h)</h2>
+            <canvas id="memory-trend" height="110"></canvas>
+          </article>
+        </section>
+
+        <section class="panel" aria-label="Node usage">
+          <div class="panelHeader">
+            <h2>Node utilization</h2>
+            <p id="last-updated" class="mutedText">Updating...</p>
+          </div>
+          <div class="tableWrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Node</th>
+                  <th>CPU</th>
+                  <th>Memory</th>
+                  <th>Storage</th>
+                </tr>
+              </thead>
+              <tbody id="nodes-body">
+                <tr>
+                  <td colspan="4" class="mutedText">Loading node metrics...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer mutedText">
+        Auto-refreshes every 15 seconds
+      </footer>
+    </div>
+  </body>
+</html>
